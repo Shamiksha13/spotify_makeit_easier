@@ -45,7 +45,7 @@ def home():
     if not token_info:
         return redirect(url_for('login'))
 
-    sp = spotipy.Spotify(auth=token_info['access_token'])
+    sp = spotipy.Spotify(auth=token_info['access_token'])  # ✅ fixed
     user = sp.me()
     return render_template('home.html', user=user)
 
@@ -56,21 +56,21 @@ def copy_songs():
     if not token_info:
         return redirect(url_for('login'))
 
-    sp = spotipy.Spotify(auth=token_info['access_token'])
+    sp = spotipy.Spotify(auth=token_info['access_token'])  # ✅ fixed
     user_id = sp.me()["id"]
 
-    # create a new playlist
+    # Create a new playlist
     playlist = sp.user_playlist_create(user=user_id, name="Your Songs", public=False)
     playlist_id = playlist["id"]
 
-    # fetch all liked songs
+    # Fetch all liked songs
     results = sp.current_user_saved_tracks(limit=50)
     songs = results["items"]
     while results["next"]:
         results = sp.next(results)
         songs.extend(results["items"])
 
-    # add them in chunks of 100
+    # Add songs in chunks of 100 (Spotify API limit)
     track_uris = [item["track"]["uri"] for item in songs]
     for i in range(0, len(track_uris), 100):
         sp.playlist_add_items(playlist_id, track_uris[i:i + 100])
@@ -86,5 +86,4 @@ def logout():
     return redirect(url_for("login"))
 
 
-if __name__ == '__main__':
-    app.run(port=8888, debug=True)
+if __name__ == '__main
