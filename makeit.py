@@ -5,9 +5,8 @@ from spotipy.oauth2 import SpotifyOAuth
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "default_secret_key")
-
-CLIENT_ID = os.environ.get("f02affac6aaa433c98900515dfa79edf")
-CLIENT_SECRET = os.environ.get("c4afce5ec7b94d9a920fe1bb9d3f33bf")
+CLIENT_ID = os.environ.get("CLIENT_ID")
+CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
 REDIRECT_URI = os.environ.get("REDIRECT_URI")
 
 SCOPE = "playlist-modify-public playlist-modify-private user-library-read user-read-email"
@@ -72,3 +71,4 @@ def logout():
 
 if __name__ == '__main__':
     app.run(port=8888, debug=True)
+
