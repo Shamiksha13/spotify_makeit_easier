@@ -12,17 +12,19 @@ REDIRECT_URI = os.environ.get("REDIRECT_URI")
 
 SCOPE = "playlist-modify-public playlist-modify-private user-library-read user-read-email"
 
-sp_oauth = SpotifyOAuth(client_id=CLIENT_ID,
-                        client_secret=CLIENT_SECRET,
-                        redirect_uri=REDIRECT_URI,
-                        scope=SCOPE,
-                        cache_path=".cache")
+sp_oauth = SpotifyOAuth(
+    client_id=CLIENT_ID,
+    client_secret=CLIENT_SECRET,
+    redirect_uri=REDIRECT_URI,
+    scope=SCOPE,
+    cache_path=".cache"
+)
 
 
 @app.route('/')
 def login():
     auth_url = sp_oauth.get_authorize_url() + '&prompt=login'
-    return f'''
+    return f"""
     <html>
     <head>
       <style>
@@ -40,7 +42,7 @@ def login():
       <a class='login-btn' href="{auth_url}">Log in with Spotify</a>
     </body>
     </html>
-    '''
+    """
 
 
 @app.route('/callback')
@@ -58,7 +60,7 @@ def home():
         return redirect(url_for('login'))
     sp = spotipy.Spotify(auth=token_info['access_token'])
     user = sp.me()
-    return f'''
+    return f"""
     <html>
     <head>
       <style>
@@ -79,7 +81,7 @@ def home():
       <a class='btn' href="/logout">Log out</a>
     </body>
     </html>
-    '''
+    """
 
 
 @app.route('/copy_songs')
@@ -91,32 +93,47 @@ def copy_songs():
     user_id = sp.me()["id"]
     playlist = sp.user_playlist_create(user=user_id, name="Your Songs", public=False)
     playlist_id = playlist["id"]
+
+    # Fetch liked songs
     results = sp.current_user_saved_tracks(limit=50)
     songs = results["items"]
     while results['next']:
         results = sp.next(results)
         songs.extend(results["items"])
+
+    # Add to playlist in batches of 100
     track_uris = [item["track"]["uri"] for item in songs]
     for i in range(0, len(track_uris), 100):
         sp.playlist_add_items(playlist_id, track_uris[i:i + 100])
+
     return "✅ Playlist created successfully!"
 
 
 @app.route('/logout')
 def logout():
     session.clear()
-    return '''
+    return """
     <html>
     <head>
       <style>
-        body {{ font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 50px; }}
-        a.btn {{
+        body { font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 50px; }
+        a.btn {
           background-color: #1DB954; color: white; padding: 10px 20px; text-decoration: none; border-radius: 30px; font-weight: bold;
           font-size: 16px; display: inline-block; margin: 10px 5px;
-        }}
-        a.btn:hover {{ background-color: #1ed760; }}
-        h1 {{ font-size: 32px; margin-bottom: 10px; }}
+        }
+        a.btn:hover { background-color: #1ed760; }
+        h1 { font-size: 32px; margin-bottom: 10px; }
       </style>
     </head>
     <body>
-      <h1>You have been logged out.</
+      <h1>You have been logged out.</h1>
+      <a class='btn' href="/">Login again</a>
+    </body>
+    </html>
+    """
+
+
+if __name__ == '__main__':
+    # Important for Render: Bind to host=0.0.0.0 and use PORT env variable
+    port = int(os.environ.get("PORT", 8888))
+    app.run(host="0.0.0.0", port=port, debug=True)
