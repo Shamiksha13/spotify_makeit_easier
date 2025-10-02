@@ -1,10 +1,11 @@
 import os
-from flask import Flask, session, redirect, request, url_for, render_template
+from flask import Flask, session, redirect, request, url_for
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "default_secret_key")
+
 CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
 REDIRECT_URI = os.environ.get("REDIRECT_URI")
@@ -20,9 +21,16 @@ sp_oauth = SpotifyOAuth(client_id=CLIENT_ID,
 
 @app.route('/')
 def login():
-    base_auth_url = sp_oauth.get_authorize_url()
-    auth_url = base_auth_url + '&prompt=login'  # Force login every time
-    return render_template('login.html', auth_url=auth_url)
+    auth_url = sp_oauth.get_authorize_url() + '&prompt=login'
+    # Return a simple HTML login page with a link
+    return f'''
+    <html>
+    <body>
+      <h1>Spotify Login</h1>
+      <a href="{auth_url}">Log in with Spotify</a>
+    </body>
+    </html>
+    '''
 
 
 @app.route('/callback')
@@ -40,7 +48,17 @@ def home():
         return redirect(url_for('login'))
     sp = spotipy.Spotify(auth=token_info['access_token'])
     user = sp.me()
-    return render_template('home.html', user=user)
+    # Return user info as plain HTML (customize as needed)
+    return f'''
+    <html>
+    <body>
+      <h1>Welcome, {user['display_name']}!</h1>
+      <p>User ID: {user['id']}</p>
+      <a href="/copy_songs">Copy Your Liked Songs</a><br>
+      <a href="/logout">Log out</a>
+    </body>
+    </html>
+    '''
 
 
 @app.route('/copy_songs')
@@ -50,11 +68,11 @@ def copy_songs():
         return redirect(url_for('login'))
     sp = spotipy.Spotify(auth=token_info['access_token'])
     user_id = sp.me()["id"]
-    playlist = sp.user_playlist_create(user=user_id, name="your songs", public=False)
+    playlist = sp.user_playlist_create(user=user_id, name="Your Songs", public=False)
     playlist_id = playlist["id"]
     results = sp.current_user_saved_tracks(limit=50)
     songs = results["items"]
-    while results["next"]:
+    while results['next']:
         results = sp.next(results)
         songs.extend(results["items"])
     track_uris = [item["track"]["uri"] for item in songs]
@@ -71,4 +89,3 @@ def logout():
 
 if __name__ == '__main__':
     app.run(port=8888, debug=True)
-
