@@ -1,1 +1,1 @@
-web: gunicorn app:makeit.py
+web: gunicorn makeit:app
