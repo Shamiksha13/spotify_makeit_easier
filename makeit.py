@@ -22,12 +22,22 @@ sp_oauth = SpotifyOAuth(client_id=CLIENT_ID,
 @app.route('/')
 def login():
     auth_url = sp_oauth.get_authorize_url() + '&prompt=login'
-    # Return a simple HTML login page with a link
     return f'''
     <html>
+    <head>
+      <style>
+        body {{ font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 50px; }}
+        a.login-btn {{
+          background-color: #1DB954; color: white; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold;
+          font-size: 18px; display: inline-block; margin-top: 30px;
+        }}
+        a.login-btn:hover {{ background-color: #1ed760; }}
+        h1 {{ font-size: 36px; margin-bottom: 10px; }}
+      </style>
+    </head>
     <body>
       <h1>Spotify Login</h1>
-      <a href="{auth_url}">Log in with Spotify</a>
+      <a class='login-btn' href="{auth_url}">Log in with Spotify</a>
     </body>
     </html>
     '''
@@ -48,14 +58,25 @@ def home():
         return redirect(url_for('login'))
     sp = spotipy.Spotify(auth=token_info['access_token'])
     user = sp.me()
-    # Return user info as plain HTML (customize as needed)
     return f'''
     <html>
+    <head>
+      <style>
+        body {{ font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 50px; }}
+        a.btn {{
+          background-color: #1DB954; color: white; padding: 10px 20px; text-decoration: none; border-radius: 30px; font-weight: bold;
+          font-size: 16px; display: inline-block; margin: 10px 5px;
+        }}
+        a.btn:hover {{ background-color: #1ed760; }}
+        h1 {{ font-size: 32px; margin-bottom: 10px; }}
+        p {{ font-size: 20px; }}
+      </style>
+    </head>
     <body>
       <h1>Welcome, {user['display_name']}!</h1>
       <p>User ID: {user['id']}</p>
-      <a href="/copy_songs">Copy Your Liked Songs</a><br>
-      <a href="/logout">Log out</a>
+      <a class='btn' href="/copy_songs">Copy Your Liked Songs</a>
+      <a class='btn' href="/logout">Log out</a>
     </body>
     </html>
     '''
@@ -84,8 +105,18 @@ def copy_songs():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect("https://accounts.spotify.com/logout")
-
-
-if __name__ == '__main__':
-    app.run(port=8888, debug=True)
+    return '''
+    <html>
+    <head>
+      <style>
+        body {{ font-family: Arial, sans-serif; background-color: #121212; color: white; text-align: center; padding: 50px; }}
+        a.btn {{
+          background-color: #1DB954; color: white; padding: 10px 20px; text-decoration: none; border-radius: 30px; font-weight: bold;
+          font-size: 16px; display: inline-block; margin: 10px 5px;
+        }}
+        a.btn:hover {{ background-color: #1ed760; }}
+        h1 {{ font-size: 32px; margin-bottom: 10px; }}
+      </style>
+    </head>
+    <body>
+      <h1>You have been logged out.</
