@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Spotify Login</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #1DB954;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      flex-direction: column;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 2rem;
+    }
+    a {
+      display: inline-block;
+      padding: 15px 30px;
+      font-size: 1.25rem;
+      color: white;
+      background-color: #1DB954;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+    a:hover {
+      background-color: #17a347;
+    }
+  </style>
+</head>
+<body>
+  <h1>Login to Spotify</h1>
+  <a href="{{ auth_url }}">Login with Spotify</a>
+</body>
+</html>
